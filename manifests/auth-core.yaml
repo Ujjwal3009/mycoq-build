@@ -1,0 +1,4 @@
+name: auth-core
+type: SHARED
+version: 1.0.0
+dependencies: []

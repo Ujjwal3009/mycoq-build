@@ -1,0 +1,8 @@
+name: payments-bundle
+type: COMPOSITE
+version: 1.0.0
+
+includes:
+  - payment-service@1.0.0
+  - auth-core@1.0.0
+  - logging-core@1.0.0
