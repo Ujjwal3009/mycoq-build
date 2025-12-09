@@ -22,6 +22,14 @@ public class HelpCommand implements Command {
         System.out.println();
         System.out.println("  graph             Show dependency graph and build order");
         System.out.println();
+        System.out.println("  run <service>     Run a service (starts the runtime engine)");
+        System.out.println("                    Example: run payment-service");
+        System.out.println();
+        System.out.println("  status            Show status of all running services");
+        System.out.println();
+        System.out.println("  stop <service>    Stop a running service");
+        System.out.println("                    Example: stop payment-service");
+        System.out.println();
         System.out.println("  help              Show this help message");
         System.out.println();
         System.out.println("OPTIONS:");
@@ -36,6 +44,12 @@ public class HelpCommand implements Command {
         System.out.println();
         System.out.println("  # List all targets");
         System.out.println("  java -jar mycoq-build.jar list");
+        System.out.println();
+        System.out.println("  # Run a service");
+        System.out.println("  java -jar mycoq-build.jar run payment-service");
+        System.out.println();
+        System.out.println("  # Check service status");
+        System.out.println("  java -jar mycoq-build.jar status");
         System.out.println();
         System.out.println("  # Clean build outputs");
         System.out.println("  java -jar mycoq-build.jar clean");

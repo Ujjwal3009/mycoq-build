@@ -1,18 +1,27 @@
 # mycoq-build
 
-A dependency-aware build system for Java projects with a powerful CLI.
+A dependency-aware build and runtime system for Java projects with a powerful CLI.
 
 ## Overview
 
-mycoq-build is a custom build tool that manages Java project compilation with automatic dependency resolution. It reads YAML manifest files to understand project structure and builds targets in the correct topological order.
+mycoq-build is a custom build and runtime system for Java projects. It manages compilation with automatic dependency resolution and provides a runtime execution engine to run services with isolation and lifecycle management. The system reads YAML manifest files to understand project structure, builds targets in topological order, and can dynamically execute them.
 
 ## Features
 
+### Module 2: Build System
 - 🔧 **Dependency-Aware Building** - Automatically resolves and builds dependencies in the correct order
 - 📦 **Multiple Target Types** - Supports SHARED libraries, EXECUTABLE applications, and COMPOSITE bundles
 - 🎯 **Selective Building** - Build all targets or specific targets with their dependencies
 - 📊 **Dependency Visualization** - View dependency graphs and build order
 - 🧹 **Clean Management** - Easy cleanup of build artifacts
+
+### Module 3: Runtime Execution Engine
+- 🚀 **Dynamic Service Execution** - Run compiled services with automatic dependency loading
+- 🔒 **Service Isolation** - Each service runs in its own ClassLoader for true isolation
+- 🧵 **Concurrent Execution** - Services run in separate threads independently
+- 📋 **Service Registry** - Track running services with status, uptime, and metadata
+- ⚡ **Lifecycle Management** - Start, monitor, and stop services gracefully
+- 🔌 **Dependency Injection** - Automatic loading and wiring of module dependencies
 
 ## Quick Start
 
@@ -113,6 +122,58 @@ Builds only the specified target and its dependencies.
 
 Deletes the `build/` directory and all compiled artifacts.
 
+### `run <service>` - Run a Service
+
+```bash
+./mycoq run payment-service
+```
+
+Starts a service using the runtime execution engine. The service runs with automatic dependency loading and isolation.
+
+**Example Output:**
+```
+=== STARTING SERVICE: payment-service ===
+
+[Runtime] Service JAR: /path/to/build/payment-service/payment-service.jar
+[Runtime] Loaded dependency: auth-core
+[Runtime] Loaded dependency: logging-core
+[EntryPoint] ✓ Valid main method found
+[Executor] ✓ Service RUNNING: payment-service
+
+=== SERVICE STARTED: payment-service ===
+
+Press Ctrl+C to stop all services and exit.
+```
+
+### `status` - Show Running Services
+
+```bash
+./mycoq status
+```
+
+Displays all running services with their status, uptime, and dependencies.
+
+**Example Output:**
+```
+Running Services:
+
+  payment-service
+    Status: RUNNING
+    Uptime: 1m 23s
+    Dependencies: auth-core, logging-core
+
+Total: 1 service(s)
+Running: 1 service(s)
+```
+
+### `stop <service>` - Stop a Service
+
+```bash
+./mycoq stop payment-service
+```
+
+Gracefully stops a running service.
+
 ## Making `mycoq` Available Globally
 
 To run `mycoq` from anywhere without `./`:
@@ -161,6 +222,7 @@ mycoq-build/
 │   ├── exec/           # Build executor
 │   ├── fs/             # File system scanner
 │   ├── jar/            # JAR packaging
+│   ├── runtime/        # Runtime execution engine (Module 3)
 │   └── org/example/    # Main entry point
 ├── build/              # Build output (generated)
 ├── mycoq               # CLI wrapper script
@@ -283,6 +345,75 @@ mvn clean package
 
 # Build again
 ./mycoq build
+
+# Run a service
+./mycoq run payment-service
+
+# Check service status (in another terminal)
+./mycoq status
+
+# Stop a service
+./mycoq stop payment-service
+```
+
+## Architecture
+
+mycoq-build consists of three main modules:
+
+### Module 1: Manifest System
+- Parses YAML manifest files
+- Builds dependency graph
+- Validates dependencies
+
+### Module 2: Build System
+- Compiles Java source code
+- Manages build artifacts
+- Packages JARs
+- Handles dependency order
+
+### Module 3: Runtime Execution Engine
+- Dynamically loads service JARs
+- Provides service isolation via ClassLoaders
+- Manages service lifecycle (start/stop)
+- Tracks running services in registry
+- Injects dependencies at runtime
+
+## What's Next?
+
+### Planned Features (Module 4+)
+
+#### Service Discovery & Communication
+- Services can discover and communicate with each other
+- REST API support
+- gRPC support
+- Message queuing
+
+#### Observability
+- Centralized logging
+- Metrics collection
+- Distributed tracing
+- Health checks
+- Monitoring dashboard
+
+#### Advanced Runtime Features
+- Hot reload (update services without stopping)
+- Multi-instance support (run multiple copies)
+- Resource limits (CPU/memory constraints)
+- Configuration management
+- Environment-specific configs
+
+#### Production Features
+- Clustering (distribute services across machines)
+- Load balancing
+- Service mesh integration
+- Security & sandboxing
+- Persistence (save registry state)
+
+#### Developer Experience
+- Interactive REPL
+- Debugging support
+- Performance profiling
+- Auto-restart on code changes
 ```
 
 ## License

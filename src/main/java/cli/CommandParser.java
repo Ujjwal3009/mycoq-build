@@ -52,6 +52,15 @@ public class CommandParser {
             case "clean" -> new CleanCommand(workspaceRoot, verbose);
             case "list" -> new ListCommand(workspaceRoot, manifestDir, verbose);
             case "graph" -> new GraphCommand(workspaceRoot, manifestDir, verbose);
+            case "run" -> {
+                String service = positionalArgs.isEmpty() ? null : positionalArgs.get(0);
+                yield new RunCommand(workspaceRoot, manifestDir, service);
+            }
+            case "status" -> new StatusCommand(workspaceRoot, manifestDir);
+            case "stop" -> {
+                String service = positionalArgs.isEmpty() ? null : positionalArgs.get(0);
+                yield new StopCommand(workspaceRoot, manifestDir, service);
+            }
             case "help", "--help", "-h" -> new HelpCommand();
             default -> throw new IllegalArgumentException(
                     "Unknown command: " + commandName + "\nUse 'help' to see available commands.");
