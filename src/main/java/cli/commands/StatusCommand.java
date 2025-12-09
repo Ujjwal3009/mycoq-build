@@ -1,12 +1,11 @@
 package cli.commands;
 
-import runtime.RuntimeManager;
-import runtime.ServiceInfo;
+import runtime.PersistentRegistry;
 
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
+import java.util.Map;
 
 /**
  * StatusCommand shows the status of all running services.
@@ -25,8 +24,8 @@ public class StatusCommand implements Command {
 
     @Override
     public void execute() throws Exception {
-        RuntimeManager runtimeManager = new RuntimeManager(workspaceRoot, manifestDir);
-        List<ServiceInfo> services = runtimeManager.getRegistry().getAllServices();
+        PersistentRegistry persistentRegistry = new PersistentRegistry();
+        Map<String, PersistentRegistry.ServiceEntry> services = persistentRegistry.getAllServices();
 
         if (services.isEmpty()) {
             System.out.println("No services running.");
@@ -36,32 +35,22 @@ public class StatusCommand implements Command {
         System.out.println("Running Services:");
         System.out.println();
 
-        for (ServiceInfo info : services) {
-            System.out.println("  " + info.getName());
-            System.out.println("    Status: " + info.getStatus());
+        for (Map.Entry<String, PersistentRegistry.ServiceEntry> entry : services.entrySet()) {
+            PersistentRegistry.ServiceEntry serviceEntry = entry.getValue();
 
-            if (info.getStartTime() != null) {
-                Duration uptime = Duration.between(info.getStartTime(), Instant.now());
+            System.out.println("  " + serviceEntry.serviceName);
+            System.out.println("    Status: " + serviceEntry.status);
+            System.out.println("    PID: " + serviceEntry.processId);
+
+            if (serviceEntry.startTime != null) {
+                Duration uptime = Duration.between(serviceEntry.startTime, Instant.now());
                 System.out.println("    Uptime: " + formatDuration(uptime));
-            }
-
-            if (info.getPort() != null) {
-                System.out.println("    Port: " + info.getPort());
-            }
-
-            if (!info.getDependencies().isEmpty()) {
-                System.out.println("    Dependencies: " + String.join(", ", info.getDependencies()));
-            }
-
-            if (info.getError() != null) {
-                System.out.println("    Error: " + info.getError());
             }
 
             System.out.println();
         }
 
-        System.out.println("Total: " + services.size() + " service(s)");
-        System.out.println("Running: " + runtimeManager.getRegistry().getRunningCount() + " service(s)");
+        System.out.println("Total: " + services.size() + " service(s) running");
     }
 
     private String formatDuration(Duration duration) {

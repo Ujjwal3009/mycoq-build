@@ -30,6 +30,7 @@ public class RuntimeManager {
     private final Path buildDir;
 
     private final RuntimeRegistry registry;
+    private final PersistentRegistry persistentRegistry;
     private final EntryPointResolver entryPointResolver;
     private final ServiceExecutor serviceExecutor;
 
@@ -39,6 +40,7 @@ public class RuntimeManager {
         this.buildDir = workspaceRoot.resolve("build");
 
         this.registry = new RuntimeRegistry();
+        this.persistentRegistry = new PersistentRegistry();
         this.entryPointResolver = new EntryPointResolver();
         this.serviceExecutor = new ServiceExecutor();
     }
@@ -100,7 +102,7 @@ public class RuntimeManager {
         Method mainMethod = entryPointResolver.resolveMainMethod(context);
 
         // Step 7: Execute service
-        serviceExecutor.execute(context, mainMethod, registry);
+        serviceExecutor.execute(context, mainMethod, registry, persistentRegistry);
 
         System.out.println("\n=== SERVICE STARTED: " + serviceName + " ===\n");
     }
@@ -109,7 +111,7 @@ public class RuntimeManager {
      * Stop a running service.
      */
     public void stopService(String serviceName) {
-        serviceExecutor.stop(serviceName, registry);
+        serviceExecutor.stop(serviceName, registry, persistentRegistry);
     }
 
     /**

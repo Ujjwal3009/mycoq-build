@@ -42,12 +42,14 @@ public class ServiceExecutor {
      * 3. Invoke the main method
      * 4. Handle errors and completion
      * 
-     * @param context    RuntimeContext for the service
-     * @param mainMethod The main() method to invoke
-     * @param registry   Registry to update service status
+     * @param context            RuntimeContext for the service
+     * @param mainMethod         The main() method to invoke
+     * @param registry           Registry to update service status
+     * @param persistentRegistry Persistent registry for cross-process tracking
      * @return The thread running the service
      */
-    public Thread execute(RuntimeContext context, Method mainMethod, RuntimeRegistry registry) {
+    public Thread execute(RuntimeContext context, Method mainMethod, RuntimeRegistry registry,
+            PersistentRegistry persistentRegistry) {
         String serviceName = context.getServiceName();
 
         System.out.println("[Executor] Starting service: " + serviceName);
@@ -57,6 +59,10 @@ public class ServiceExecutor {
         info.setStatus(ServiceStatus.STARTING);
         info.setStartTime(Instant.now());
         registry.register(serviceName, info);
+
+        // Also register in persistent registry with current process ID
+        int pid = (int) ProcessHandle.current().pid();
+        persistentRegistry.register(serviceName, pid);
 
         // Create a new thread for this service
         Thread serviceThread = new Thread(() -> {
@@ -105,10 +111,11 @@ public class ServiceExecutor {
     /**
      * Stop a running service gracefully.
      * 
-     * @param serviceName Name of the service to stop
-     * @param registry    Registry containing service info
+     * @param serviceName        Name of the service to stop
+     * @param registry           Registry containing service info
+     * @param persistentRegistry Persistent registry to update
      */
-    public void stop(String serviceName, RuntimeRegistry registry) {
+    public void stop(String serviceName, RuntimeRegistry registry, PersistentRegistry persistentRegistry) {
         ServiceInfo info = registry.getService(serviceName);
 
         if (info == null) {
@@ -138,6 +145,7 @@ public class ServiceExecutor {
             } else {
                 System.out.println("[Executor] ✓ Service stopped: " + serviceName);
                 info.setStatus(ServiceStatus.STOPPED);
+                persistentRegistry.unregister(serviceName);
             }
         } catch (InterruptedException e) {
             System.err.println("[Executor] Interrupted while stopping service: " + serviceName);
